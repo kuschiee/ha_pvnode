@@ -140,38 +140,6 @@ SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
         key="last_update",
         translation_key="last_update",
         device_class=SensorDeviceClass.TIMESTAMP,
-    ),
-    PVNodeSensorEntityDescription(
-        key='weather_rain_now',
-        name="Rain",
-        native_unit_of_measurement=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
-        device_class=SensorDeviceClass.PRECIPITATION_INTENSITY,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    PVNodeSensorEntityDescription(
-        key='weather_humidity_now',
-        name="Humidity",
-        native_unit_of_measurement=PERCENTAGE,
-        device_class=SensorDeviceClass.HUMIDITY,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    PVNodeSensorEntityDescription(
-        key='weather_code_now',
-        name="Weather Code",
-    ),
-    PVNodeSensorEntityDescription(
-        key='weather_wind_speed_now',
-        name="Wind speed",
-        native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
-        device_class=SensorDeviceClass.WIND_SPEED,
-        state_class=SensorStateClass.MEASUREMENT,
-    ),
-    PVNodeSensorEntityDescription(
-        key='weather_temperature_now',
-        name="Temperature",
-        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-        device_class=SensorDeviceClass.TEMPERATURE,
-        state_class=SensorStateClass.MEASUREMENT,
     )
 )
 
