@@ -46,7 +46,7 @@ class Estimate:
     def __init__(self, kWp: float,  data: dict):
         self.kWp = kWp
         self.api_timezone = ZoneInfo(data['data_timezone'].upper())
-        self.last_update = self.now()
+        self._last_update = self.now()
 
         tmp = {}
         for v in data['values']:
@@ -110,7 +110,12 @@ class Estimate:
 
     @property
     def last_update(self) -> datetime:
-        return self.last_update
+        return self._last_update
+
+    
+    @last_update.setter
+    def last_update(self, value) -> None:
+        self._last_update = value
 
 
     def power_production_at_time(self, time: datetime) -> int:
