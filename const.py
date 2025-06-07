@@ -10,3 +10,6 @@ LOGGER = logging.getLogger(__package__)
 CONF_ORIENTATION= "orientation"
 CONF_SLOPE = "slope"
 CONF_KWP = "kwp"
+CONF_BUILDYEAR = "buildyear"
+CONF_INSTALLATION_HEIGHT = "instheight"
+CONF_INSTALLATION_DATE = "instdate"

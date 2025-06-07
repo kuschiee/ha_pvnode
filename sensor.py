@@ -177,7 +177,7 @@ class PVNodeSensorEntity(CoordinatorEntity[PVNodeDataUpdateCoordinator], SensorE
             manufacturer="PVNode",
             model="PVNode-0.0.1",
             name="Solar production forecast",
-            configuration_url="https://PVNode",
+            configuration_url="https://pvnode.com",
         )
 
     @property

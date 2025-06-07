@@ -15,6 +15,8 @@ from .const import (
     CONF_ORIENTATION,
     CONF_SLOPE,
     CONF_KWP,
+    CONF_INSTALLATION_HEIGHT,
+    CONF_INSTALLATION_DATE,
     DOMAIN,
     LOGGER,
 )
@@ -36,7 +38,10 @@ class PVNodeDataUpdateCoordinator(DataUpdateCoordinator[Estimate]):
             longitude=entry.data[CONF_LONGITUDE],
             orientation=entry.options[CONF_ORIENTATION],
             slope=entry.options[CONF_SLOPE],
-            kWp=entry.options[CONF_KWP]
+            kWp=entry.options[CONF_KWP],
+            instheight=entry.options[CONF_INSTALLATION_HEIGHT],
+            instdate=entry.options[CONF_INSTALLATION_DATE],
+            time_zone=hass.config.time_zone
         )
 
         update_interval = timedelta(minutes=15)
