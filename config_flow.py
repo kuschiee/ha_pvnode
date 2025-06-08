@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import re
+import datetime
 from typing import Any
+
 
 import voluptuous as vol
 
@@ -21,11 +23,13 @@ from .const import (
     CONF_ORIENTATION,
     CONF_SLOPE,
     CONF_KWP,
+    CONF_BUILDYEAR,
+    CONF_INSTALLATION_HEIGHT,
+    CONF_INSTALLATION_DATE,
     DOMAIN,
 )
 
 RE_API_KEY = re.compile(r"^pvn_[a-zA-Z0-9]{32}$")
-
 
 class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for PVNode."""
@@ -52,6 +56,8 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                     CONF_SLOPE: user_input[CONF_SLOPE],
                     CONF_KWP: user_input[CONF_KWP],
                     CONF_API_KEY: user_input[CONF_API_KEY],
+                    CONF_INSTALLATION_DATE: user_input[CONF_INSTALLATION_DATE],
+                    CONF_INSTALLATION_HEIGHT: user_input[CONF_INSTALLATION_HEIGHT],
                 },
             )
 
@@ -78,7 +84,13 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                         vol.Coerce(int), vol.Range(min=0, max=360)
                     ),
                     vol.Required(CONF_KWP): vol.All(
-                        vol.Coerce(int), vol.Range(min=1)
+                        vol.Coerce(float), vol.Range(min=1)
+                    ),
+                    vol.Optional(CONF_INSTALLATION_DATE): vol.All(
+                        str
+                    ),
+                    vol.Optional(CONF_INSTALLATION_HEIGHT, default=0): vol.All(
+                        vol.Coerce(int), vol.Range(min=0)
                     ),
                 }
             ),
@@ -120,7 +132,13 @@ class PVNodeOptionFlowHandler(OptionsFlow):
                     vol.Required(
                         CONF_KWP,
                         default=self.config_entry.options[CONF_KWP],
-                    ): vol.All(vol.Coerce(int), vol.Range(min=1)),
+                    ): vol.All(vol.Coerce(float), vol.Range(min=1)),
+                    vol.Optional(CONF_INSTALLATION_DATE, default=self.config_entry.options[CONF_INSTALLATION_DATE]): vol.All(
+                        str
+                    ),
+                    vol.Optional(CONF_INSTALLATION_HEIGHT, default=self.config_entry.options[CONF_INSTALLATION_HEIGHT]): vol.All(
+                        vol.Coerce(int), vol.Range(min=0)
+                    ),
                 }
             ),
             errors=errors,

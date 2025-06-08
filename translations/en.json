@@ -4,19 +4,23 @@
             "user": {
                 "description": "Fill in the data of your solar panels. Please refer to the documentation if a field is unclear.",
                 "data": {
+                    "api_key": "API Key",
                     "orientation": "Orientation (360 degrees, 0 = North, 90 = East, 180 = South, 270 = West)",
                     "slope": "Slope (0 = Horizontal, 90 = Vertical)",
-                    "latitude": "latitude of the location",
-                    "longitude": "longitude of the location",
+                    "latitude": "Latitude of the Location",
+                    "longitude": "Longitude of the Location",
                     "kwp": "Total kilowatts peak power of your solar modules",
-                    "name": "Name of the location"
+		    "buildyear": "Year of module commissioning",
+                    "name": "Name of the Location",
+		    "instheight": "Installation height of modules above terrain (m)",
+		    "instdate": "Installation date of modules (YYYY-MM-DD)"
                 }
             }
         }
     },
     "options": {
         "error": {
-            "invalid_api_key": "API Key is invalid."
+            "invalid_api_key": "Invalid API Key"
         },
         "step": {
             "init": {
@@ -25,7 +29,9 @@
                     "api_key": "API Key",
                     "orientation": "Orientation (360 degrees, 0 = North, 90 = East, 180 = South, 270 = West)",
                     "slope": "Slope (0 = Horizontal, 90 = Vertical)",
-                    "kwp": "Total kilowatts peak power of your solar modules"
+                    "kwp": "Total kilowatts peak power of your solar modules",
+		    "instheight": "Installation height of modules above terrain (m)",
+		    "instdate": "Installation date of modules (YYYY-MM-DD)"
                 }
             }
         }

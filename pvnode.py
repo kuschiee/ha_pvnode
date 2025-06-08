@@ -10,16 +10,15 @@ def _interval_value_sum(interval_begin: datetime, interval_end: datetime, data: 
 
     for timestamp, wh in data.items():
         # Skip all until this hour
-        if timestamp < interval_begin:
+        if timestamp <= interval_begin:
             continue
 
-        if timestamp >= interval_end:
+        if timestamp > interval_end:
             break
 
         total += wh
 
     return total
-
 
 def _timed_value(at: datetime, data: dict[datetime, int]) -> int | None:
     """Return the value for a specific time."""
@@ -31,10 +30,8 @@ def _timed_value(at: datetime, data: dict[datetime, int]) -> int | None:
 
     return None
 
-
 class PVNodeConnectionError(Exception):
     '''PVNode connection error'''
-
 
 @dataclass
 class Estimate:
@@ -42,19 +39,20 @@ class Estimate:
     wh_hours = {}
     watts = {}
 
-
     def __init__(self, kWp: float,  data: dict):
         self.kWp = kWp
-        self.api_timezone = ZoneInfo(data['data_timezone'].upper())
-        self._last_update = self.now()
+        self.api_timezone = ZoneInfo(data['data_timezone'])
+        self.last_update = self.now()
 
         tmp = {}
         for v in data['values']:
             date = datetime.fromisoformat(v['dtm'])
-            date = date.astimezone(self.api_timezone)
+            # move everything one minute back to make sure h:00 time gets
+            # accounted in (h-1):00 - (h-1):59 slot
+            # TODO: make it better
+            date = date.astimezone(self.api_timezone) - timedelta(minutes=1)
             self.watts[date] = v['spec_watts'] * self.kWp
             date = date.replace(minute=0, second=0, microsecond=0)
-            date = date.astimezone(self.api_timezone)
             if date in tmp:
                 tmp[date].append(v['spec_watts'])
             else:
@@ -98,10 +96,8 @@ class Estimate:
     def power_production_now(self) -> int:
          return self.power_production_at_time(self.now())
 
-
     def now(self) -> datetime:
         return datetime.now(tz=self.api_timezone)
-
 
     @property
     def energy_current_hour(self) -> int:
@@ -112,7 +108,7 @@ class Estimate:
     def last_update(self) -> datetime:
         return self._last_update
 
-    
+
     @last_update.setter
     def last_update(self, value) -> None:
         self._last_update = value
@@ -146,27 +142,33 @@ class Estimate:
                 return timestamp
         raise RuntimeError("No peak production time found")
 
+    def get_last_update(self) -> datetime:
+        return self.last_update
+
 
 class PVNode:
 
     estimate_cached = None
 
-    def __init__(self, api_key, latitude, longitude, slope, orientation, kWp):
+    def __init__(self, api_key, latitude, longitude, slope, orientation, kWp, instheight, instdate, time_zone):
         self.api_key = api_key
         self.latitude = latitude
         self.longitude = longitude
         self.slope = slope
         self.orientation = orientation
         self.kWp = kWp
+        self.instheight = instheight
+        self.instdate = instdate
+        self.time_zone = time_zone
     
     async def estimate(self):
-        if self.estimate_cached and self.estimate_cached.last_update < (self.estimate_cached.last_update + timedelta(hours=8)):
+        if self.estimate_cached and self.estimate_cached.now() < (self.estimate_cached.last_update + timedelta(hours=8)):
             return self.estimate_cached
-
-        self.estimate_cached = await asyncio.get_running_loop().run_in_executor(None, self._estimate) 
-        return self.estimate_cached
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self._estimate) 
 
     def _estimate(self):
+        panel_age_years = (date.today() - date.fromisoformat(self.instdate)).days / 365.25
         url = 'https://api.pvnode.com/v1/forecast/'
         body = {
             "latitude": self.latitude,
@@ -175,7 +177,11 @@ class PVNode:
             "orientation": self.orientation,
             "past_days": 0,
             "forecast_days": 1,
-            "required_data": "spec_watts"
+            "required_data": "spec_watts",
+            "installation_height": self.instheight,
+            "timezone": self.time_zone,
+            "panel_age_years": panel_age_years 
+#            "pv_technology_type": "monosi",
         }
         headers = {
             'Authorization': 'Bearer ' + self.api_key
