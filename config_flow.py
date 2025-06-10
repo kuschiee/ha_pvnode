@@ -17,7 +17,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, CONF_NAME
 from homeassistant.core import callback
-from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import config_validation as cv, selector
 
 from .const import (
     CONF_ORIENTATION,
@@ -25,6 +25,9 @@ from .const import (
     CONF_KWP,
     CONF_INSTALLATION_HEIGHT,
     CONF_INSTALLATION_DATE,
+    CONF_TECHNOLOGY,
+    CONF_OBSTRUCTION,
+    TECHNOLOGIES,
     DOMAIN,
 )
 
@@ -57,6 +60,8 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                     CONF_API_KEY: user_input[CONF_API_KEY],
                     CONF_INSTALLATION_DATE: user_input[CONF_INSTALLATION_DATE],
                     CONF_INSTALLATION_HEIGHT: user_input[CONF_INSTALLATION_HEIGHT],
+                    CONF_TECHNOLOGY: user_input[CONF_TECHNOLOGY],
+                    CONF_OBSTRUCTION: user_input[CONF_OBSTRUCTION],
                 },
             )
 
@@ -91,6 +96,12 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                     vol.Optional(CONF_INSTALLATION_HEIGHT, default=0): vol.All(
                         vol.Coerce(int), vol.Range(min=0)
                     ),
+                    vol.Optional(CONF_TECHNOLOGY, default=''): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=TECHNOLOGIES),
+                    ),
+                    vol.Optional(
+                        CONF_OBSTRUCTION, default=''
+                    ): str,
                 }
             ),
         )
@@ -138,6 +149,12 @@ class PVNodeOptionFlowHandler(OptionsFlow):
                     vol.Optional(CONF_INSTALLATION_HEIGHT, default=self.config_entry.options[CONF_INSTALLATION_HEIGHT]): vol.All(
                         vol.Coerce(int), vol.Range(min=0)
                     ),
+                    vol.Optional(CONF_TECHNOLOGY, default=self.config_entry.options[CONF_TECHNOLOGY]): selector.SelectSelector(
+                        selector.SelectSelectorConfig(options=TECHNOLOGIES),
+                    ),
+                    vol.Optional(
+                        CONF_OBSTRUCTION, default=self.config_entry.options[CONF_OBSTRUCTION]
+                    ): str,
                 }
             ),
             errors=errors,

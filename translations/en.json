@@ -10,10 +10,12 @@
                     "latitude": "Latitude of the Location",
                     "longitude": "Longitude of the Location",
                     "kwp": "Total kilowatts peak power of your solar modules",
-		    "buildyear": "Year of module commissioning",
+		            "buildyear": "Year of module commissioning",
                     "name": "Name of the Location",
-		    "instheight": "Installation height of modules above terrain (m)",
-		    "instdate": "Installation date of modules (YYYY-MM-DD)"
+                    "instheight": "Installation height of modules above terrain (m)",
+                    "instdate": "Installation date of modules (YYYY-MM-DD)",
+                    "technology": "Technology of the solar panels",
+                    "obstruction": "Obstruction configuration string"
                 }
             }
         }
@@ -30,8 +32,10 @@
                     "orientation": "Orientation (360 degrees, 0 = North, 90 = East, 180 = South, 270 = West)",
                     "slope": "Slope (0 = Horizontal, 90 = Vertical)",
                     "kwp": "Total kilowatts peak power of your solar modules",
-		    "instheight": "Installation height of modules above terrain (m)",
-		    "instdate": "Installation date of modules (YYYY-MM-DD)"
+                    "instheight": "Installation height of modules above terrain (m)",
+                    "instdate": "Installation date of modules (YYYY-MM-DD)",
+                    "technology": "Technology of the solar panels",
+                    "obstruction": "Obstruction configuration string"
                 }
             }
         }

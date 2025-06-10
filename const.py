@@ -13,3 +13,7 @@ CONF_KWP = "kwp"
 CONF_BUILDYEAR = "buildyear"
 CONF_INSTALLATION_HEIGHT = "instheight"
 CONF_INSTALLATION_DATE = "instdate"
+CONF_TECHNOLOGY = "technology"
+CONF_OBSTRUCTION = "obstruction"
+
+TECHNOLOGIES = ['', 'perc', 'monosi', 'multisi', 'cdte', 'topcon']

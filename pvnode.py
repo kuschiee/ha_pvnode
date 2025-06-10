@@ -150,7 +150,7 @@ class PVNode:
 
     estimate_cached = None
 
-    def __init__(self, api_key, latitude, longitude, slope, orientation, kWp, instheight, instdate, time_zone):
+    def __init__(self, api_key, latitude, longitude, slope, orientation, kWp, instheight, instdate, time_zone, technology, obstruction):
         self.api_key = api_key
         self.latitude = latitude
         self.longitude = longitude
@@ -160,6 +160,8 @@ class PVNode:
         self.instheight = instheight
         self.instdate = instdate
         self.time_zone = time_zone
+        self.technology = technology
+        self.obstruction = obstruction
     
     async def estimate(self):
         if self.estimate_cached and self.estimate_cached.now() < (self.estimate_cached.last_update + timedelta(hours=8)):
@@ -181,11 +183,16 @@ class PVNode:
             "required_data": "spec_watts",
             "installation_height": self.instheight,
             "timezone": self.time_zone,
-            "panel_age_years": panel_age_years 
-#            "pv_technology_type": "monosi",
+            "panel_age_years": panel_age_years
         }
+        if self.technology and len(self.technology) > 0:
+            body["pv_technology_type"] =  self.technology
+        if self.obstruction and len(self.obstruction) > 0:
+            body["sky_obstruction_config"] = self.obstruction
+        
         headers = {
             'Authorization': 'Bearer ' + self.api_key
         }
+
         response = requests.get(url, headers=headers, params=body)
         return Estimate(self.kWp, response.json())

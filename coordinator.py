@@ -17,6 +17,8 @@ from .const import (
     CONF_KWP,
     CONF_INSTALLATION_HEIGHT,
     CONF_INSTALLATION_DATE,
+    CONF_TECHNOLOGY,
+    CONF_OBSTRUCTION,
     DOMAIN,
     LOGGER,
 )
@@ -41,7 +43,9 @@ class PVNodeDataUpdateCoordinator(DataUpdateCoordinator[Estimate]):
             kWp=entry.options[CONF_KWP],
             instheight=entry.options[CONF_INSTALLATION_HEIGHT],
             instdate=entry.options[CONF_INSTALLATION_DATE],
-            time_zone=hass.config.time_zone
+            time_zone=hass.config.time_zone,
+            technology=entry.options[CONF_TECHNOLOGY],
+            obstruction=entry.options[CONF_OBSTRUCTION],
         )
 
         update_interval = timedelta(minutes=15)
