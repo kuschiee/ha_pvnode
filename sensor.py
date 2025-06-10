@@ -31,7 +31,7 @@ from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import PVNodeConfigEntry
-from .const import DOMAIN
+from .const import DOMAIN, CONF_WEATHER_ENABLED
 from .coordinator import PVNodeDataUpdateCoordinator
 
 
@@ -42,7 +42,7 @@ class PVNodeSensorEntityDescription(SensorEntityDescription):
     state: Callable[[Estimate], Any] | None = None
 
 
-SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
+ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="energy_production_today",
         translation_key="energy_production_today",
@@ -148,9 +148,49 @@ SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
 )
 
 
+WEATHER_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
+    PVNodeSensorEntityDescription(
+        key='weather_precipitation_now',
+        name="Precipitation",
+        native_unit_of_measurement=UnitOfVolumetricFlux.MILLIMETERS_PER_HOUR,
+        device_class=SensorDeviceClass.PRECIPITATION_INTENSITY,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    PVNodeSensorEntityDescription(
+        key='weather_humidity_now',
+        name="Humidity",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.HUMIDITY,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    PVNodeSensorEntityDescription(
+        key='weather_code_now',
+        name="Weather Code",
+    ),
+    PVNodeSensorEntityDescription(
+        key='weather_wind_speed_now',
+        name="Wind speed",
+        native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
+        device_class=SensorDeviceClass.WIND_SPEED,
+        state_class=SensorStateClass.MEASUREMENT,
+    ),
+    PVNodeSensorEntityDescription(
+        key='weather_temperature_now',
+        name="Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+    )
+)
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: PVNodeConfigEntry, async_add_entities: AddConfigEntryEntitiesCallback,) -> None:
     """Defer sensor setup to the shared sensor module."""
     coordinator = entry.runtime_data
+
+    sensors = ENERGY_SENSORS
+    if entry.options[CONF_WEATHER_ENABLED]:
+        sensors = ENERGY_SENSORS + WEATHER_SENSORS
 
     async_add_entities(
         PVNodeSensorEntity(
@@ -158,7 +198,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: PVNodeConfigEntry, async
             coordinator=coordinator,
             entity_description=entity_description,
         )
-        for entity_description in SENSORS
+        for entity_description in sensors
     )
 
 

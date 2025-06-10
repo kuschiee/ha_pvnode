@@ -15,7 +15,8 @@
                     "instheight": "Installation height of modules above terrain (m)",
                     "instdate": "Installation date of modules",
                     "technology": "Technology of the solar panels",
-                    "obstruction": "Obstruction configuration string"
+                    "obstruction": "Obstruction configuration string",
+                    "weather_enabled": "Enables weather information"
                 }
             }
         }
@@ -35,7 +36,8 @@
                     "instheight": "Installation height of modules above terrain (m)",
                     "instdate": "Installation date of modules",
                     "technology": "Technology of the solar panels",
-                    "obstruction": "Obstruction configuration string"
+                    "obstruction": "Obstruction configuration string",
+                    "weather_enabled": "Enables weather information"
                 }
             }
         }

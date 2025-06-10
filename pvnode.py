@@ -38,8 +38,13 @@ class Estimate:
 
     wh_hours = {}
     watts = {}
+    weather_temperatures = {}
+    weather_precipitations = {}
+    weather_humidities = {}
+    weather_winds = {}
+    weather_codes = {}
 
-    def __init__(self, kWp: float,  data: dict):
+    def __init__(self, kWp: float, data: dict):
         self.kWp = kWp
         self.api_timezone = ZoneInfo(data['data_timezone'])
         self.last_update = self.now()
@@ -51,12 +56,25 @@ class Estimate:
             # accounted in (h-1):00 - (h-1):59 slot
             # TODO: make it better
             date = date.replace(tzinfo=self.api_timezone) - timedelta(minutes=1)
-            self.watts[date] = v['spec_watts'] * self.kWp
-            date = date.replace(minute=0, second=0, microsecond=0)
-            if date in tmp:
-                tmp[date].append(v['spec_watts'])
-            else:
-                tmp[date] = [v['spec_watts']]
+
+            if 'temp' in v:
+                self.weather_temperatures[date] = v['temp']
+            if 'precip' in v:
+                self.weather_precipitations[date] = v['precip']
+            if 'RH' in v:
+                self.weather_humidities[date] = v['RH']
+            if 'vwind' in v:
+                self.weather_winds[date] = v['vwind']
+            if 'weather_code' in v:
+                self.weather_codes[date] = v['weather_code']
+
+            if 'spec_watts' in v:
+                self.watts[date] = v['spec_watts'] * self.kWp
+                date = date.replace(minute=0, second=0, microsecond=0)
+                if date in tmp:
+                    tmp[date].append(v['spec_watts'])
+                else:
+                    tmp[date] = [v['spec_watts']]
 
         for t, v in tmp.items():
             self.wh_hours[t] = sum(v) / len(v) * self.kWp
@@ -145,12 +163,37 @@ class Estimate:
     def get_last_update(self) -> datetime:
         return self.last_update
 
+    
+    @property
+    def weather_temperature_now(self) -> int:
+        return _timed_value(self.now(), self.weather_temperatures) or 0
+
+
+    @property
+    def weather_precipitation_now(self) -> int:
+        return _timed_value(self.now(), self.weather_precipitations) or 0
+
+
+    @property
+    def weather_humidity_now(self) -> int:
+        return _timed_value(self.now(), self.weather_humidities) or 0
+
+
+    @property
+    def weather_code_now(self) -> int:
+        return _timed_value(self.now(), self.weather_codes) or 0
+
+
+    @property
+    def weather_wind_speed_now(self) -> int:
+        return _timed_value(self.now(), self.weather_winds) or 0
+
 
 class PVNode:
 
     estimate_cached = None
 
-    def __init__(self, api_key, latitude, longitude, slope, orientation, kWp, instheight, instdate, time_zone, technology, obstruction):
+    def __init__(self, api_key, latitude, longitude, slope, orientation, kWp, instheight, instdate, time_zone, technology, obstruction, weather_enabled=False):
         self.api_key = api_key
         self.latitude = latitude
         self.longitude = longitude
@@ -162,6 +205,7 @@ class PVNode:
         self.time_zone = time_zone
         self.technology = technology
         self.obstruction = obstruction
+        self.weather_enabled = weather_enabled
     
     async def estimate(self):
         if self.estimate_cached and self.estimate_cached.now() < (self.estimate_cached.last_update + timedelta(hours=8)):
@@ -189,6 +233,8 @@ class PVNode:
             body["pv_technology_type"] =  self.technology
         if self.obstruction and len(self.obstruction) > 0:
             body["sky_obstruction_config"] = self.obstruction
+        if self.weather_enabled:
+            body["required_data"] = "spec_watts,temp,RH,precip,vwind,weather_code"
         
         headers = {
             'Authorization': 'Bearer ' + self.api_key

@@ -19,6 +19,7 @@ from .const import (
     CONF_INSTALLATION_DATE,
     CONF_TECHNOLOGY,
     CONF_OBSTRUCTION,
+    CONF_WEATHER_ENABLED,
     DOMAIN,
     LOGGER,
 )
@@ -46,6 +47,7 @@ class PVNodeDataUpdateCoordinator(DataUpdateCoordinator[Estimate]):
             time_zone=hass.config.time_zone,
             technology=entry.options[CONF_TECHNOLOGY],
             obstruction=entry.options[CONF_OBSTRUCTION],
+            weather_enabled=entry.options[CONF_WEATHER_ENABLED]
         )
 
         update_interval = timedelta(minutes=15)

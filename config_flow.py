@@ -27,6 +27,7 @@ from .const import (
     CONF_INSTALLATION_DATE,
     CONF_TECHNOLOGY,
     CONF_OBSTRUCTION,
+    CONF_WEATHER_ENABLED,
     TECHNOLOGIES,
     DOMAIN,
 )
@@ -62,6 +63,7 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                     CONF_INSTALLATION_HEIGHT: user_input[CONF_INSTALLATION_HEIGHT],
                     CONF_TECHNOLOGY: user_input[CONF_TECHNOLOGY],
                     CONF_OBSTRUCTION: user_input[CONF_OBSTRUCTION],
+                    CONF_WEATHER_ENABLED: user_input[CONF_WEATHER_ENABLED],
                 },
             )
 
@@ -102,6 +104,9 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                     vol.Optional(
                         CONF_OBSTRUCTION, default=''
                     ): str,
+                    vol.Optional(
+                        CONF_WEATHER_ENABLED, default=False
+                    ): bool,
                 }
             ),
         )
@@ -155,6 +160,10 @@ class PVNodeOptionFlowHandler(OptionsFlow):
                     vol.Optional(
                         CONF_OBSTRUCTION, default=self.config_entry.options[CONF_OBSTRUCTION]
                     ): str,
+                    vol.Optional(
+                        CONF_WEATHER_ENABLED, default=self.config_entry.options[CONF_WEATHER_ENABLED]
+                    ): bool,
+
                 }
             ),
             errors=errors,

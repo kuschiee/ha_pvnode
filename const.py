@@ -15,5 +15,6 @@ CONF_INSTALLATION_HEIGHT = "instheight"
 CONF_INSTALLATION_DATE = "instdate"
 CONF_TECHNOLOGY = "technology"
 CONF_OBSTRUCTION = "obstruction"
+CONF_WEATHER_ENABLED = "weather_enabled"
 
 TECHNOLOGIES = ['', 'perc', 'monosi', 'multisi', 'cdte', 'topcon']
