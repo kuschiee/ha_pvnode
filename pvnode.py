@@ -164,8 +164,9 @@ class PVNode:
     async def estimate(self):
         if self.estimate_cached and self.estimate_cached.now() < (self.estimate_cached.last_update + timedelta(hours=8)):
             return self.estimate_cached
-        loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(None, self._estimate) 
+
+        self.estimate_cached = await asyncio.get_running_loop().run_in_executor(None, self._estimate) 
+        return self.estimate_cached
 
     def _estimate(self):
         panel_age_years = (date.today() - date.fromisoformat(self.instdate)).days / 365.25
