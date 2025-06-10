@@ -171,7 +171,6 @@ class PVNode:
         return self.estimate_cached
 
     def _estimate(self):
-        panel_age_years = (date.today() - date.fromisoformat(self.instdate)).days / 365.25
         url = 'https://api.pvnode.com/v1/forecast/'
         body = {
             "latitude": self.latitude,
@@ -183,8 +182,9 @@ class PVNode:
             "required_data": "spec_watts",
             "installation_height": self.instheight,
             "timezone": self.time_zone,
-            "panel_age_years": panel_age_years
         }
+        if self.instdate and len(self.instdate) > 0:
+            body["panel_age_years"] = (date.today() - date.fromisoformat(self.instdate)).days / 365.25
         if self.technology and len(self.technology) > 0:
             body["pv_technology_type"] =  self.technology
         if self.obstruction and len(self.obstruction) > 0:

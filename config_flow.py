@@ -90,8 +90,8 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_KWP): vol.All(
                         vol.Coerce(float), vol.Range(min=1)
                     ),
-                    vol.Optional(CONF_INSTALLATION_DATE): vol.All(
-                        str
+                    vol.Optional(CONF_INSTALLATION_DATE): selector.DateSelector(
+                        selector.DateSelectorConfig()
                     ),
                     vol.Optional(CONF_INSTALLATION_HEIGHT, default=0): vol.All(
                         vol.Coerce(int), vol.Range(min=0)
@@ -143,8 +143,8 @@ class PVNodeOptionFlowHandler(OptionsFlow):
                         CONF_KWP,
                         default=self.config_entry.options[CONF_KWP],
                     ): vol.All(vol.Coerce(float), vol.Range(min=1)),
-                    vol.Optional(CONF_INSTALLATION_DATE, default=self.config_entry.options[CONF_INSTALLATION_DATE]): vol.All(
-                        str
+                    vol.Optional(CONF_INSTALLATION_DATE, default=self.config_entry.options[CONF_INSTALLATION_DATE]): selector.DateSelector(
+                        selector.DateSelectorConfig()
                     ),
                     vol.Optional(CONF_INSTALLATION_HEIGHT, default=self.config_entry.options[CONF_INSTALLATION_HEIGHT]): vol.All(
                         vol.Coerce(int), vol.Range(min=0)

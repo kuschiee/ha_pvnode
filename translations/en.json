@@ -13,7 +13,7 @@
 		            "buildyear": "Year of module commissioning",
                     "name": "Name of the Location",
                     "instheight": "Installation height of modules above terrain (m)",
-                    "instdate": "Installation date of modules (YYYY-MM-DD)",
+                    "instdate": "Installation date of modules",
                     "technology": "Technology of the solar panels",
                     "obstruction": "Obstruction configuration string"
                 }
@@ -33,7 +33,7 @@
                     "slope": "Slope (0 = Horizontal, 90 = Vertical)",
                     "kwp": "Total kilowatts peak power of your solar modules",
                     "instheight": "Installation height of modules above terrain (m)",
-                    "instdate": "Installation date of modules (YYYY-MM-DD)",
+                    "instdate": "Installation date of modules",
                     "technology": "Technology of the solar panels",
                     "obstruction": "Obstruction configuration string"
                 }
