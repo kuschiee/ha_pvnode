@@ -50,7 +50,7 @@ class Estimate:
             # move everything one minute back to make sure h:00 time gets
             # accounted in (h-1):00 - (h-1):59 slot
             # TODO: make it better
-            date = date.astimezone(self.api_timezone) - timedelta(minutes=1)
+            date = date.replace(tzinfo=self.api_timezone) - timedelta(minutes=1)
             self.watts[date] = v['spec_watts'] * self.kWp
             date = date.replace(minute=0, second=0, microsecond=0)
             if date in tmp:
