@@ -160,9 +160,6 @@ class PVNodeOptionFlowHandler(OptionsFlow):
                     vol.Optional(
                         CONF_OBSTRUCTION, default=self.config_entry.options[CONF_OBSTRUCTION]
                     ): str,
-                    vol.Optional(
-                        CONF_WEATHER_ENABLED, default=self.config_entry.options[CONF_WEATHER_ENABLED]
-                    ): bool,
 
                 }
             ),
