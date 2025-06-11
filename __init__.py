@@ -4,38 +4,14 @@ from __future__ import annotations
 
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-'''
+
 from .const import (
-    CONF_DAMPING,
-    CONF_DAMPING_EVENING,
-    CONF_DAMPING_MORNING,
-    CONF_MODULES_POWER,
+    CONF_WEATHER_ENABLED
 )
-'''
+
 from .coordinator import PVNodeConfigEntry, PVNodeDataUpdateCoordinator
 
 PLATFORMS = [Platform.SENSOR]
-
-'''
-async def async_migrate_entry(
-    hass: HomeAssistant, entry: PVNodeConfigEntry
-) -> bool:
-    """Migrate old config entry."""
-
-    if entry.version == 1:
-        new_options = entry.options.copy()
-        new_options |= {
-            CONF_MODULES_POWER: new_options.pop("modules power"),
-            CONF_DAMPING_MORNING: new_options.get(CONF_DAMPING, 0.0),
-            CONF_DAMPING_EVENING: new_options.pop(CONF_DAMPING, 0.0),
-        }
-
-        hass.config_entries.async_update_entry(
-            entry, data=entry.data, options=new_options, version=2
-        )
-
-    return True
-'''
 
 async def async_setup_entry(hass: HomeAssistant, entry: PVNodeConfigEntry) -> bool:
     """Set up PVNode from a config entry."""
@@ -44,7 +20,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: PVNodeConfigEntry) -> bo
 
     entry.runtime_data = coordinator
 
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    platforms = PLATFORMS
+    if entry.data[CONF_WEATHER_ENABLED]:
+        platforms.append(Platform.WEATHER)
+
+    await hass.config_entries.async_forward_entry_setups(entry, platforms)
 
     entry.async_on_unload(entry.add_update_listener(async_update_options))
 

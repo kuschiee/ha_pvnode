@@ -31,7 +31,14 @@ from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import PVNodeConfigEntry
-from .const import DOMAIN, CONF_WEATHER_ENABLED
+from .const import (
+    DOMAIN, 
+    MANUFACTURER,
+    MODEL,
+    URL,
+    CONDITION_MAP,
+    CONF_WEATHER_ENABLED
+)
 from .coordinator import PVNodeDataUpdateCoordinator
 
 
@@ -166,6 +173,7 @@ WEATHER_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key='weather_code_now',
         name="Weather Code",
+        state= lambda estimate: CONDITION_MAP.get(estimate.weather_code_now),
     ),
     PVNodeSensorEntityDescription(
         key='weather_wind_speed_now',
@@ -189,7 +197,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: PVNodeConfigEntry, async
     coordinator = entry.runtime_data
 
     sensors = ENERGY_SENSORS
-    if entry.options[CONF_WEATHER_ENABLED]:
+    if entry.data[CONF_WEATHER_ENABLED]:
         sensors = ENERGY_SENSORS + WEATHER_SENSORS
 
     async_add_entities(
@@ -218,10 +226,10 @@ class PVNodeSensorEntity(CoordinatorEntity[PVNodeDataUpdateCoordinator], SensorE
         self._attr_device_info = DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
             identifiers={(DOMAIN, entry_id)},
-            manufacturer="PVNode",
-            model="PVNode-0.0.1",
+            manufacturer=MANUFACTURER,
+            model=MODEL,
             name="Solar production forecast",
-            configuration_url="https://pvnode.com",
+            configuration_url=URL,
         )
 
     @property

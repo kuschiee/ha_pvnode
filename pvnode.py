@@ -20,6 +20,7 @@ def _interval_value_sum(interval_begin: datetime, interval_end: datetime, data: 
 
     return total
 
+
 def _timed_value(at: datetime, data: dict[datetime, int]) -> int | None:
     """Return the value for a specific time."""
     value = None
@@ -30,54 +31,68 @@ def _timed_value(at: datetime, data: dict[datetime, int]) -> int | None:
 
     return None
 
+
 class PVNodeConnectionError(Exception):
     '''PVNode connection error'''
 
 @dataclass
 class Estimate:
 
+    '''
     wh_hours = {}
     watts = {}
-    weather_temperatures = {}
-    weather_precipitations = {}
-    weather_humidities = {}
-    weather_winds = {}
-    weather_codes = {}
+    weather_hours = {}
+    weather = {}
+    '''
 
     def __init__(self, kWp: float, data: dict):
         self.kWp = kWp
         self.api_timezone = ZoneInfo(data['data_timezone'])
         self.last_update = self.now()
 
-        tmp = {}
-        for v in data['values']:
-            date = datetime.fromisoformat(v['dtm'])
+        
+        self.wh_hours = {}
+        self.weather_hours = {}
+        self.data = {}
+
+        def _add_measurement(dt, date, key, value):
+            if key == 'spec_watts':
+                value *= self.kWp
+
+            if key not in self.data:
+                self.data[key] = {}
+                
+            self.data[key][dt] = value
+
+            if date not in self.weather_hours:
+                self.weather_hours[date] = {}
+
+            if key not in self.weather_hours[date]:
+                self.weather_hours[date][key] = []
+
+            self.weather_hours[date][key].append(value)
+            
+        for value in data['values']:
+            dt = datetime.fromisoformat(value['dtm'])
             # move everything one minute back to make sure h:00 time gets
             # accounted in (h-1):00 - (h-1):59 slot
             # TODO: make it better
-            date = date.replace(tzinfo=self.api_timezone) - timedelta(minutes=1)
+            dt = dt.replace(tzinfo=self.api_timezone) - timedelta(minutes=1)
+            date = dt.replace(minute=0, second=0, microsecond=0)
 
-            if 'temp' in v:
-                self.weather_temperatures[date] = v['temp']
-            if 'precip' in v:
-                self.weather_precipitations[date] = v['precip']
-            if 'RH' in v:
-                self.weather_humidities[date] = v['RH']
-            if 'vwind' in v:
-                self.weather_winds[date] = v['vwind']
-            if 'weather_code' in v:
-                self.weather_codes[date] = v['weather_code']
+            for k, v in value.items():
+                if k == 'dtm':
+                    continue
+                _add_measurement(dt, date, k, v)
 
-            if 'spec_watts' in v:
-                self.watts[date] = v['spec_watts'] * self.kWp
-                date = date.replace(minute=0, second=0, microsecond=0)
-                if date in tmp:
-                    tmp[date].append(v['spec_watts'])
+        for t, v in self.weather_hours.items():
+            for k, m in v.items():
+                if k == 'weather_code':
+                    self.weather_hours[t][k] = max(m)
                 else:
-                    tmp[date] = [v['spec_watts']]
+                    self.weather_hours[t][k] = sum(m) / len(m)
 
-        for t, v in tmp.items():
-            self.wh_hours[t] = sum(v) / len(v) * self.kWp
+            self.wh_hours[t] = v['spec_watts']
 
 
     @property
@@ -133,7 +148,7 @@ class Estimate:
 
 
     def power_production_at_time(self, time: datetime) -> int:
-        return _timed_value(time, self.watts) or 0
+        return _timed_value(time, self.data['spec_watts']) or 0
 
 
     def sum_energy_production(self, period_hours: int) -> int:
@@ -152,10 +167,10 @@ class Estimate:
 
     def peak_production_time(self, specific_date: date) -> datetime:
         value = max(
-            (watt for date, watt in self.watts.items() if date.date() == specific_date),
+            (watt for date, watt in self.data['spec_watts'].items() if date.date() == specific_date),
             default=None,
         )
-        for timestamp, watt in self.watts.items():
+        for timestamp, watt in self.data['spec_watts'].items():
             if watt == value:
                 return timestamp
         raise RuntimeError("No peak production time found")
@@ -166,27 +181,27 @@ class Estimate:
     
     @property
     def weather_temperature_now(self) -> int:
-        return _timed_value(self.now(), self.weather_temperatures) or 0
+        return _timed_value(self.now(), self.data["temp"]) or 0
 
 
     @property
     def weather_precipitation_now(self) -> int:
-        return _timed_value(self.now(), self.weather_precipitations) or 0
+        return _timed_value(self.now(), self.data["precip"]) or 0
 
 
     @property
     def weather_humidity_now(self) -> int:
-        return _timed_value(self.now(), self.weather_humidities) or 0
+        return _timed_value(self.now(), self.data["RH"]) or 0
 
 
     @property
     def weather_code_now(self) -> int:
-        return _timed_value(self.now(), self.weather_codes) or 0
+        return _timed_value(self.now(), self.data["weather_code"]) or 0
 
 
     @property
     def weather_wind_speed_now(self) -> int:
-        return _timed_value(self.now(), self.weather_winds) or 0
+        return _timed_value(self.now(), self.data["vwind"]) or 0
 
 
 class PVNode:
@@ -241,4 +256,12 @@ class PVNode:
         }
 
         response = requests.get(url, headers=headers, params=body)
+
+        if response.status_code == 400:
+            raise PVNodeConnectionError('API Key wrong?')
+        elif response.status_code == 404:
+            raise PVNodeConnectionError(f"Parameters wrong? {response.json()['detail']}")
+        elif response.status_code > 400:
+            raise PVNodeConnectionError('Something went wrong ...')
+
         return Estimate(self.kWp, response.json())
