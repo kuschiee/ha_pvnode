@@ -45,7 +45,7 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Add a PVNode weather entity from a config_entry."""
-    if entry.options[CONF_WEATHER_ENABLED]:
+    if entry.data[CONF_WEATHER_ENABLED]:
         async_add_entities([PVNodeWeatherEntity(coordinator=entry.runtime_data, entry=entry)])
 
 

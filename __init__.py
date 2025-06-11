@@ -21,7 +21,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: PVNodeConfigEntry) -> bo
     entry.runtime_data = coordinator
 
     platforms = PLATFORMS
-    if entry.options[CONF_WEATHER_ENABLED]:
+    if entry.data[CONF_WEATHER_ENABLED]:
         platforms.append(Platform.WEATHER)
 
     await hass.config_entries.async_forward_entry_setups(entry, platforms)

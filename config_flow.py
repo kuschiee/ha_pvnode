@@ -53,6 +53,7 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                 data={
                     CONF_LATITUDE: user_input[CONF_LATITUDE],
                     CONF_LONGITUDE: user_input[CONF_LONGITUDE],
+                    CONF_WEATHER_ENABLED: user_input[CONF_WEATHER_ENABLED],
                 },
                 options={
                     CONF_ORIENTATION: user_input[CONF_ORIENTATION],
@@ -63,7 +64,6 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                     CONF_INSTALLATION_HEIGHT: user_input[CONF_INSTALLATION_HEIGHT],
                     CONF_TECHNOLOGY: user_input[CONF_TECHNOLOGY],
                     CONF_OBSTRUCTION: user_input[CONF_OBSTRUCTION],
-                    CONF_WEATHER_ENABLED: user_input[CONF_WEATHER_ENABLED],
                 },
             )
 
@@ -106,7 +106,9 @@ class PVNodeFlowHandler(ConfigFlow, domain=DOMAIN):
                     ): str,
                     vol.Optional(
                         CONF_WEATHER_ENABLED, default=False
-                    ): bool,
+                    ): selector.BooleanSelector(
+                        selector.BooleanSelectorConfig()
+                    ),
                 }
             ),
         )

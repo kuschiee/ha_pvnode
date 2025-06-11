@@ -47,7 +47,7 @@ class PVNodeDataUpdateCoordinator(DataUpdateCoordinator[Estimate]):
             time_zone=hass.config.time_zone,
             technology=entry.options[CONF_TECHNOLOGY],
             obstruction=entry.options[CONF_OBSTRUCTION],
-            weather_enabled=entry.options[CONF_WEATHER_ENABLED]
+            weather_enabled=entry.data[CONF_WEATHER_ENABLED]
         )
 
         update_interval = timedelta(minutes=15)

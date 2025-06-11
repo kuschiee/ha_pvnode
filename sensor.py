@@ -197,7 +197,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: PVNodeConfigEntry, async
     coordinator = entry.runtime_data
 
     sensors = ENERGY_SENSORS
-    if entry.options[CONF_WEATHER_ENABLED]:
+    if entry.data[CONF_WEATHER_ENABLED]:
         sensors = ENERGY_SENSORS + WEATHER_SENSORS
 
     async_add_entities(
