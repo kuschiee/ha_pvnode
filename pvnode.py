@@ -256,4 +256,12 @@ class PVNode:
         }
 
         response = requests.get(url, headers=headers, params=body)
+
+        if response.status_code == 400:
+            raise PVNodeConnectionError('API Key wrong?')
+        elif response.status_code == 404:
+            raise PVNodeConnectionError(f"Parameters wrong? {response.json()['detail']}")
+        elif response.status_code > 400:
+            raise PVNodeConnectionError('Something went wrong ...')
+
         return Estimate(self.kWp, response.json())
