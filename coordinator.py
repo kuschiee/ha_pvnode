@@ -10,8 +10,13 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 
 from .const import (
+    DOMAIN, 
+    MANUFACTURER,
+    MODEL,
+    URL,
     CONF_ORIENTATION,
     CONF_SLOPE,
     CONF_KWP,
@@ -20,7 +25,6 @@ from .const import (
     CONF_TECHNOLOGY,
     CONF_OBSTRUCTION,
     CONF_WEATHER_ENABLED,
-    DOMAIN,
     LOGGER,
 )
 
@@ -50,6 +54,7 @@ class PVNodeDataUpdateCoordinator(DataUpdateCoordinator[Estimate]):
             weather_enabled=entry.data[CONF_WEATHER_ENABLED]
         )
 
+        self.entry_id = entry.entry_id
         update_interval = timedelta(minutes=15)
 
         super().__init__(
@@ -66,3 +71,13 @@ class PVNodeDataUpdateCoordinator(DataUpdateCoordinator[Estimate]):
             return await self.forecast.estimate()
         except PVNodeConnectionError as error:
             raise UpdateFailed(error) from error
+
+    def get_device_info(self):
+        return DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, self.entry_id)},
+            manufacturer=MANUFACTURER,
+            model=MODEL,
+            name="Forecast",
+            configuration_url=URL,
+        )

@@ -21,15 +21,10 @@ from homeassistant.const import (
     UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import (
-    DOMAIN,
     ATTRIBUTION,
-    MANUFACTURER,
-    MODEL,
-    URL,
     CONDITION_MAP, 
     CONF_WEATHER_ENABLED
 )
@@ -68,14 +63,7 @@ class PVNodeWeatherEntity(SingleCoordinatorWeatherEntity[PVNodeDataUpdateCoordin
         super().__init__(coordinator)
         
         self._attr_unique_id = f"weather_{entry.unique_id}"
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, entry.entry_id)},
-            manufacturer=MANUFACTURER,
-            model=MODEL,
-            name="Weather forecast",
-            configuration_url=URL,
-        )
+        self._attr_device_info = coordinator.get_device_info()
 
         self.coordinator = coordinator
 

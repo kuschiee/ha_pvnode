@@ -25,17 +25,12 @@ from homeassistant.const import (
     PERCENTAGE,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import PVNodeConfigEntry
 from .const import (
-    DOMAIN, 
-    MANUFACTURER,
-    MODEL,
-    URL,
     CONDITION_MAP,
     CONF_WEATHER_ENABLED
 )
@@ -222,15 +217,7 @@ class PVNodeSensorEntity(CoordinatorEntity[PVNodeDataUpdateCoordinator], SensorE
         self.entity_description = entity_description
         self.entity_id = f"{SENSOR_DOMAIN}.{entity_description.key}"
         self._attr_unique_id = f"{entry_id}_{entity_description.key}"
-
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, entry_id)},
-            manufacturer=MANUFACTURER,
-            model=MODEL,
-            name="Solar production forecast",
-            configuration_url=URL,
-        )
+        self._attr_device_info = coordinator.get_device_info()
 
     @property
     def native_value(self) -> datetime | StateType:
