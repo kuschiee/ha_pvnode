@@ -21,7 +21,7 @@ from homeassistant.components.weather import (
 
 DOMAIN = "pvnode"
 MANUFACTURER = "PVNode"
-MODEL = "PVNode-0.0.1"
+MODEL = "Forecast"
 URL = "https://pvnode.com"
 LOGGER = logging.getLogger(__package__)
 
