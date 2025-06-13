@@ -26,13 +26,17 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from .const import (
     ATTRIBUTION,
     CONDITION_MAP, 
-    CONF_WEATHER_ENABLED
+    CONF_WEATHER_ENABLED,
+    ATTR_CONDITION_SUNNY,
+    ATTR_CONDITION_CLEAR_NIGHT
 )
 
 from .coordinator import (
     PVNodeConfigEntry,
     PVNodeDataUpdateCoordinator
 )
+
+from homeassistant.helpers import sun
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -67,10 +71,21 @@ class PVNodeWeatherEntity(SingleCoordinatorWeatherEntity[PVNodeDataUpdateCoordin
 
         self.coordinator = coordinator
 
+    def format_condition(self, weathercode, date = None):
+        condition = CONDITION_MAP.get(weathercode)
+        sunisup = True
+        if date is None:
+            sunisup = sun.is_up(self.hass)
+        else:
+            sunisup = sun.is_up(self.hass, date)
+        if condition == ATTR_CONDITION_SUNNY and not sunisup:
+            condition = ATTR_CONDITION_CLEAR_NIGHT
+        return condition 
+
     @property
     def condition(self) -> str | None:
         """Return the current condition."""
-        return CONDITION_MAP.get(self.coordinator.data.weather_code_now)
+        return self.format_condition(self.coordinator.data.weather_code_now)
 
     @property
     def native_temperature(self) -> float:
@@ -97,7 +112,7 @@ class PVNodeWeatherEntity(SingleCoordinatorWeatherEntity[PVNodeDataUpdateCoordin
                 ATTR_FORECAST_NATIVE_TEMP: item["temp"],
                 ATTR_FORECAST_NATIVE_PRECIPITATION: item["precip"],
                 ATTR_FORECAST_NATIVE_WIND_SPEED: item["vwind"],
-                ATTR_FORECAST_CONDITION: CONDITION_MAP.get(item["weather_code"]),
+                ATTR_FORECAST_CONDITION: self.format_condition(item["weather_code"], date),
             }
             for date, item in self.coordinator.data.weather_hours.items()
         ]
