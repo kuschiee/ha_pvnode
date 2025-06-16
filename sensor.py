@@ -48,7 +48,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="energy_production_today",
         translation_key="energy_production_today",
-        state=lambda estimate: estimate.energy_production_today,
+        state=lambda estimate, coordinator: estimate.energy_production_today,
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -57,7 +57,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="energy_production_today_remaining",
         translation_key="energy_production_today_remaining",
-        state=lambda estimate: estimate.energy_production_today_remaining,
+        state=lambda estimate, coordinator: estimate.energy_production_today_remaining,
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -66,7 +66,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="energy_production_tomorrow",
         translation_key="energy_production_tomorrow",
-        state=lambda estimate: estimate.energy_production_tomorrow,
+        state=lambda estimate, coordinator: estimate.energy_production_tomorrow,
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -86,7 +86,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
         key="power_production_now",
         translation_key="power_production_now",
         device_class=SensorDeviceClass.POWER,
-        state=lambda estimate: estimate.power_production_now,
+        state=lambda estimate, coordinator: estimate.power_production_now,
         state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfPower.WATT,
         suggested_display_precision=0
@@ -94,7 +94,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="power_production_next_hour",
         translation_key="power_production_next_hour",
-        state=lambda estimate: estimate.power_production_at_time(
+        state=lambda estimate, coordinator: estimate.power_production_at_time(
             estimate.now() + timedelta(hours=1)
         ),
         device_class=SensorDeviceClass.POWER,
@@ -105,7 +105,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="power_production_next_12hours",
         translation_key="power_production_next_12hours",
-        state=lambda estimate: estimate.power_production_at_time(
+        state=lambda estimate, coordinator: estimate.power_production_at_time(
             estimate.now() + timedelta(hours=12)
         ),
         device_class=SensorDeviceClass.POWER,
@@ -116,7 +116,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="power_production_next_24hours",
         translation_key="power_production_next_24hours",
-        state=lambda estimate: estimate.power_production_at_time(
+        state=lambda estimate, coordinator: estimate.power_production_at_time(
             estimate.now() + timedelta(hours=24)
         ),
         device_class=SensorDeviceClass.POWER,
@@ -127,7 +127,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="energy_current_hour",
         translation_key="energy_current_hour",
-        state=lambda estimate: estimate.energy_current_hour,
+        state=lambda estimate, coordinator: estimate.energy_current_hour,
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -136,7 +136,7 @@ ENERGY_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key="energy_next_hour",
         translation_key="energy_next_hour",
-        state=lambda estimate: estimate.sum_energy_production(1),
+        state=lambda estimate, coordinator: estimate.sum_energy_production(1),
         device_class=SensorDeviceClass.ENERGY,
         native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,
         suggested_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -168,7 +168,7 @@ WEATHER_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key='weather_code_now',
         name="Weather Code",
-        state= lambda estimate: CONDITION_MAP.get(estimate.weather_code_now),
+        state= lambda estimate, coordinator: coordinator.format_condition(estimate.weather_code_now),
     ),
     PVNodeSensorEntityDescription(
         key='weather_wind_speed_now',
@@ -227,6 +227,6 @@ class PVNodeSensorEntity(CoordinatorEntity[PVNodeDataUpdateCoordinator], SensorE
                 self.coordinator.data, self.entity_description.key
             )
         else:
-            state = self.entity_description.state(self.coordinator.data)
+            state = self.entity_description.state(self.coordinator.data, self.coordinator)
 
         return state

@@ -35,15 +35,9 @@ def _timed_value(at: datetime, data: dict[datetime, int]) -> int | None:
 class PVNodeConnectionError(Exception):
     '''PVNode connection error'''
 
+
 @dataclass
 class Estimate:
-
-    '''
-    wh_hours = {}
-    watts = {}
-    weather_hours = {}
-    weather = {}
-    '''
 
     def __init__(self, kWp: float, data: dict):
         self.kWp = kWp
@@ -174,6 +168,7 @@ class Estimate:
             if watt == value:
                 return timestamp
         raise RuntimeError("No peak production time found")
+
 
     def get_last_update(self) -> datetime:
         return self.last_update

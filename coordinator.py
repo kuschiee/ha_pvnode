@@ -11,6 +11,12 @@ from homeassistant.const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
+from homeassistant.components.weather import (
+     ATTR_CONDITION_CLEAR_NIGHT,
+     ATTR_CONDITION_SUNNY
+)
+
+from homeassistant.helpers import sun
 
 from .const import (
     DOMAIN, 
@@ -26,6 +32,7 @@ from .const import (
     CONF_OBSTRUCTION,
     CONF_WEATHER_ENABLED,
     LOGGER,
+    CONDITION_MAP
 )
 
 type PVNodeConfigEntry = ConfigEntry[PVNodeDataUpdateCoordinator]
@@ -81,3 +88,14 @@ class PVNodeDataUpdateCoordinator(DataUpdateCoordinator[Estimate]):
             name="Forecast",
             configuration_url=URL,
         )
+
+    def format_condition(self, weathercode, date = None):
+         condition = CONDITION_MAP.get(weathercode)
+         sunisup = True
+         if date is None:
+             sunisup = sun.is_up(self.hass)
+         else:
+             sunisup = sun.is_up(self.hass, date)
+         if condition == ATTR_CONDITION_SUNNY and not sunisup:
+             condition = ATTR_CONDITION_CLEAR_NIGHT
+         return condition 
