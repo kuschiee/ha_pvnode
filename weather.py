@@ -97,7 +97,7 @@ class PVNodeWeatherEntity(SingleCoordinatorWeatherEntity[PVNodeDataUpdateCoordin
                 ATTR_FORECAST_NATIVE_TEMP: item["temp"],
                 ATTR_FORECAST_NATIVE_PRECIPITATION: item["precip"],
                 ATTR_FORECAST_NATIVE_WIND_SPEED: item["vwind"],
-                ATTR_FORECAST_CONDITION: CONDITION_MAP.get(item["weather_code"]),
+                ATTR_FORECAST_CONDITION: self.coordinator.format_condition(item["weather_code"], date),
             }
             for date, item in self.coordinator.data.weather_hours.items()
         ]

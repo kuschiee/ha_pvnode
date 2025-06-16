@@ -168,7 +168,7 @@ WEATHER_SENSORS: tuple[PVNodeSensorEntityDescription, ...] = (
     PVNodeSensorEntityDescription(
         key='weather_code_now',
         name="Weather Code",
-        state= lambda estimate: CONDITION_MAP.get(estimate.weather_code_now),
+        state= lambda estimate, coordinator: coordinator.format_condition(estimate.weather_code_now),
     ),
     PVNodeSensorEntityDescription(
         key='weather_wind_speed_now',
@@ -227,6 +227,6 @@ class PVNodeSensorEntity(CoordinatorEntity[PVNodeDataUpdateCoordinator], SensorE
                 self.coordinator.data, self.entity_description.key
             )
         else:
-            state = self.entity_description.state(self.coordinator.data)
+            state = self.entity_description.state(self.coordinator.data, self.coordinator)
 
         return state
