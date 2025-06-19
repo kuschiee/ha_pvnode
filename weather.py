@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import cast
+from datetime import datetime
 
 from homeassistant.components.weather import (
     ATTR_FORECAST_CONDITION,
@@ -99,5 +100,5 @@ class PVNodeWeatherEntity(SingleCoordinatorWeatherEntity[PVNodeDataUpdateCoordin
                 ATTR_FORECAST_NATIVE_WIND_SPEED: item["vwind"],
                 ATTR_FORECAST_CONDITION: self.coordinator.format_condition(item["weather_code"], date),
             }
-            for date, item in self.coordinator.data.weather_hours.items()
+            for date, item in self.coordinator.data.weather_hours.items() if date >= datetime.now().replace(tzinfo=self.coordinator.data.api_timezone)
         ]
