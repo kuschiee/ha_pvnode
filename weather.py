@@ -71,7 +71,7 @@ class PVNodeWeatherEntity(SingleCoordinatorWeatherEntity[PVNodeDataUpdateCoordin
     @property
     def condition(self) -> str | None:
         """Return the current condition."""
-        return CONDITION_MAP.get(self.coordinator.data.weather_code_now)
+        return self.coordinator.format_condition(self.coordinator.data.weather_code_now)
 
     @property
     def native_temperature(self) -> float:
